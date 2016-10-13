@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h5><strong>机房信息列表</strong></h5>
+
+<table id="idc_list_table_id" class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center"> ID </th>
+            <th class="text-center"> 机房名称 </th>
+            <th class="text-center"> 机房地址 </th>
+            <th class="text-center"> 机房联系人 </th>
+            <th class="text-center"> 机房联系人电话 </th>
+            <th class="text-center"> 备注 </th>
+            <th class="text-center"> 操作 </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for idcmsg in idc_msg %}
+        <tr>
+            <td class="text-center" id="idc_id_id"> {{ idcmsg.id }} </td>
+            <td class="text-center" id="idc_name_id"> {{ idcmsg.idc_name }} </td>
+            <td class="text-center" id="idc_addr_id"> {{ idcmsg.idc_addr }} </td>
+            <td class="text-center" id="idc_user_name_id"> {{ idcmsg.idc_user_name }} </td>
+            <td class="text-center" id="idc_user_phone_id"> {{ idcmsg.idc_user_phone}} </td>
+            <td class="text-center" id="remark_id"> {{ idcmsg.remark }} </td>
+            <td class="text-center">
+                <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#update_idc" onclick="updateInfo()">
+                <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="del({{ idcmsg.id }})">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<input id = "add_btn" type = "button" value = "添加机房" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#add_idc">  {# data-target="#add_idc" 指向add_idc这个模态框 #}
+
+
+<!-- 更新模态框（Modal） -->
+<div class="modal fade" id="update_idc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel">修改机房信息</h4>
+			</div>
+			<div class="modal-body">
+                ID：<input type="text" id="idc_id_input" class="form-control input-sm" disabled="disabled"/><label for="idc_id_input" ></label>
+                机房名称：<input type="text" id="idc_name_input" class="form-control input-sm" /><label for="idc_name_input" ></label>   {# 让label的for指向input的id，这样click这个label时，input会获得焦点。 #}
+                机房地址：<input type="text" id="idc_addr_input" class="form-control input-sm" /><label for="idc_addr_input"></label>
+                机房联系人：<input type="text" id="idc_user_name_input" class="form-control input-sm" /><label for="idc_user_name_input"></label>
+                机房联系人电话：<input type="text" id="idc_user_phone_input" class="form-control input-sm" /><label for="idc_user_phone_input"></label>
+                备注：<input type="text" id="remark_input" class="form-control input-sm" /><label for="remark_input"></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="idc_update()">提交修改</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+
+<!-- 添加模态框（Modal） -->
+<div class="modal fade" id="add_idc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myModalLabel">添加机房信息</h4>
+			</div>
+			<div class="modal-body">
+                机房名称：<input type="text" id="idc_name_add" class="form-control input-sm" required/><label for="idc_name_add" ></label>   {# 让label的for指向input的id，这样click这个label时，input会获得焦点。 #}
+                机房地址：<input type="text" id="idc_addr_add" class="form-control input-sm" /><label for="idc_addr_add"></label>
+                机房联系人：<input type="text" id="idc_user_name_add" class="form-control input-sm" /><label for="idc_user_name_add"></label>
+                机房联系人电话：<input type="text" id="idc_user_phone_add" class="form-control input-sm" /><label for="idc_user_phone_add"></label>
+                备注：<input type="text" id="remark_add" class="form-control input-sm" /><label for="remark_add"></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="add()">添加</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+
+
+
+<script>
+//触发更新模态框的同时调用此方法
+function updateInfo() {
+    var e = e || window.event;
+    var target = e.target || e.srcElement;
+    if (target.parentNode.tagName.toLowerCase() == "td") {
+        var rowIndex = target.parentNode.parentNode.rowIndex;
+    }
+    //获取表格中的一行数据
+    var idc_id = document.getElementById("idc_list_table_id").rows[rowIndex].cells[0].innerText;
+    var idc_name = document.getElementById("idc_list_table_id").rows[rowIndex].cells[1].innerText;
+    var idc_addr = document.getElementById("idc_list_table_id").rows[rowIndex].cells[2].innerText;
+    var idc_user_name = document.getElementById("idc_list_table_id").rows[rowIndex].cells[3].innerText;
+    var idc_user_phone = document.getElementById("idc_list_table_id").rows[rowIndex].cells[4].innerText;
+    var remark = document.getElementById("idc_list_table_id").rows[rowIndex].cells[5].innerText;
+    //向模态框中传值
+    $("#idc_id_input").val(idc_id);
+    $("#idc_name_input").val(idc_name);
+    $("#idc_addr_input").val(idc_addr);
+    $("#idc_user_name_input").val(idc_user_name);
+    $("#idc_user_phone_input").val(idc_user_phone);
+    $("#remark_input").val(remark);
+}
+
+//提交更改
+function idc_update() {
+    //获取模态框数据
+    var idc_id=$("#idc_id_input").val();
+    var idc_name=$("#idc_name_input").val();
+    var idc_addr = $("#idc_addr_input").val();
+    var idc_user_name = $("#idc_user_name_input").val();
+    var idc_user_phone = $("#idc_user_phone_input").val();
+    var remark = $("#remark_input").val();
+    $.ajax({
+        type: "POST",
+        url: "/idc_update/",
+        data: "idc_id=" + idc_id + "&idc_name=" + idc_name + "&idc_addr=" + idc_addr + "&idc_user_name=" + idc_user_name + "&idc_user_phone=" + idc_user_phone + '&remark=' + remark,
+
+        success: function(data) {
+            if (data == "OK"){
+                location.reload();
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    });
+}
+
+function del(id) {
+    if (confirm("确定删除")) {
+        $.ajax({
+            type: "POST",
+            url: "/idc_delete/",
+            data: {"idc_id": id},
+            success: function (data) {
+                if (data == "OK"){
+                    location.reload();
+                }else{
+                    alert(data)
+                }
+            },
+            error: function (data) {
+                alert(data)
+            }
+        });
+    }
+}
+
+function add() {
+    var idc_name=$("#idc_name_add").val();
+    var idc_addr = $("#idc_addr_add").val();
+    var idc_user_name = $("#idc_user_name_add").val();
+    var idc_user_phone = $("#idc_user_phone_add").val();
+    var remark = $("#remark_add").val();
+
+    $.ajax({
+        type: "POST",
+        url: "/idc_add/",
+        data: "&idc_name=" + idc_name + "&idc_addr=" + idc_addr + "&idc_user_name=" + idc_user_name + "&idc_user_phone=" + idc_user_phone + '&remark=' + remark,
+
+        success: function(data) {
+            if (data == "OK"){
+                location.reload();
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    });
+}
+
+</script>
+
+{% endblock %}

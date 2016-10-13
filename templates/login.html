@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+	<head>
+	    <meta charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+        <meta name="description" content="cmdb">
+        <meta name="author" content="caizehong">
+        <meta name="date" content="2016-08-16">
+        <link rel="icon" href="/static/bootstrap/img/4f.png">  {# 网站小图标 #}
+
+	    <title>运维平台</title>
+        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/bootstrap/css/signin.css" rel="stylesheet">  {# 输入框等大小及颜色的css #}
+	</head>
+
+    {# 这种这个页面的css是signin.css #}
+
+    <body>
+        <div class="container">
+            <form class="form-signin" method="post" action="/login/">
+                {% csrf_token %}  {# 不加这个会报Forbidden (403)  CSRF verification failed. Request aborted. #}
+	    	    <h2 class="form-signin-heading text-center">运维平台</h2>
+                <input type="text" id="username" name="username" class="form-control" placeholder="用户名" required autofocus>
+                <input type="password" id="password" name="password" class="form-control" placeholder="密码" required>
+	            <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+	        </form>
+	    </div> <!-- /container -->
+        <div class="text-center alert">
+            {% if error %}
+                <p style="color: #ac2925">{{ error }}</p>
+            {% endif %}
+        </div>
+
+	</body>
+</html>

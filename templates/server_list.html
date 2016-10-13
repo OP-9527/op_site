@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style type="text/css" xmlns="http://www.w3.org/1999/html">
+.show-grid [class ^="col-"] {
+    padding-top: 7px;
+    height: 35px;
+    border: 1px solid #ddd;
+}
+
+select {   {# 下拉框 #}
+    height: 30px;
+    width: 100%;
+}
+</style>
+
+
+
+<h5><strong>服务器信息列表</strong></h5>
+<table id="server_list_table_id" class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center"> IP </th>
+            <th class="text-center"> 品牌 </th>
+            <th class="text-center"> IDC </th>
+            <th class="text-center"> 机架位置</th>
+            <th class="text-center"> 服务器所属组 </th>
+            <th class="text-center"> 上架时间 </th>
+            <th class="text-center"> 服务器状态 </th>
+            <th class="text-center"> 备注 </th>
+            <th class="text-center"> 操作 </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for servermgs in server_msg %}
+        <tr>
+            <td class="text-center" id="server_ip_id"> {{ servermgs.ip }} </td>
+            <td class="text-center" id="server_manufacturer_id"> {{ servermgs.manufacturer }} </td>
+            <td class="text-center" id="server_idc_id"> {{ servermgs.idc }} </td>
+            <td class="text-center" id="server_server_position_id"> {{ servermgs.server_position }} </td>
+            <td class="text-center" id="server_group_id"> {{ servermgs.server_group }} </td>
+            <td class="text-center" id="server_add_time_id"> {{ servermgs.add_time }} </td>
+            <td class="text-center" id="server_status_id"> {{ servermgs.status }} </td>
+            <td class="text-center" id="remark_id"> {{ servermgs.remark}} </td>
+            <td class="text-center">
+                <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_update" onclick="updateInfo({{ servermgs.id }})">
+                <input disabled="disabled" id = "detail_btn" type = "button" value = "信息" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_detail" onclick="server_detail('{{ servermgs.ip }}')">
+                <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="server_Del()">
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<input id = "add_btn" type = "button" value = "添加服务器" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#server_add">
+
+
+
+<!-- 更新模态框（Modal） -->
+<div class="modal fade" id="server_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">修改服务器信息</h5>
+			</div>
+			<div class="modal-body">
+                <input type="hidden" id="server_id_input" class="form-control input-sm" /><label for="server_id_input" ></label>
+                IP：<input type="text" id="server_ip_input" class="form-control input-sm" /><label for="server_ip_input" ></label>
+                品牌：<input type="text" id="server_manufacturer_input" class="form-control input-sm" /><label for="server_manufacturer_input" ></label>   {# 让label的for指向input的id，这样click这个label时，input会获得焦点。#}
+                IDC：<input type="text" id="server_idc_input" class="form-control input-sm" /><label for="server_idc_input"></label>
+                机架位置：<input type="text" id="server_server_position_input" class="form-control input-sm" /><label for="server_server_position_input"></label>
+                服务器所属组：<input type="text" id="server_group_input" class="form-control input-sm" width="100px" /><label for="server_group_input"></label>
+                上架时间：<input type="text" id="server_add_time_input" class="form-control input-sm" width="100px" /><label for="server_add_time_input"></label>
+                服务器状态：<input type="text" id="server_status_input" class="form-control input-sm" width="100px" /><label for="server_status_input"></label>
+                备注：<input type="text" id="remark_input" class="form-control input-sm" width="100px" /><label for="remark_input"></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="server_update()">提交修改</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+<!-- 详细信息模态框（Modal） -->
+<div class="modal fade" id="server_detail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">服务器详细信息</h5>
+			</div>
+			<div class="modal-body">
+
+                <table class="table table-striped table-bordered table-hover " id="editable" >
+                    <tr>
+                        <td class="text-center" width="120">IP</td><th class="text-center" id="server_detail_ip"></th>
+                        <td class="text-center" width="120">品牌</td><th class="text-center" id="server_detail_manufacturer"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">IDC</td><th class="text-center" id="server_detail_idc"></th>
+                        <td class="text-center" width="120">机架位置</td><th class="text-center" id="server_detail_position"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">上架时间</td><th class="text-center" id="server_detail_add_time"></th>
+                        <td class="text-center" width="120">服务器状态</td><th class="text-center" id="server_detail_status"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">服务器型号</td><th class="text-center" id="server_detail_type"></th>
+                        <td class="text-center" width="120">服务器所属组</td><th class="text-center" id="server_detail_group"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">序列号</td><th class="text-center" id="server_detail_service_tag"></th>
+                        <td class="text-center" width="120">CPU型号</td><th class="text-center" id="server_detail_cpu_model"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">CPU线程数</td><th class="text-center" id="server_detail_cpu_nums"></th>
+                        <td class="text-center" width="120">CPU物理核数</td><th class="text-center" id="server_detail_cpu_groups"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">内存大小</td><th class="text-center" id="server_detail_mem"></th>
+                        <td class="text-center" width="120">磁盘大小</td><th class="text-center" id="server_detail_disk"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">全部网卡</td><th class="text-center" id="server_detail_network_all"></th>
+                        <td class="text-center" width="120">激活网卡</td><th class="text-center" id="server_detail_network_up"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center" width="120">操作系统</td><th class="text-center" id="server_type_os"></th>
+                        <td class="text-center" width="120">主机名</td><th class="text-center" id="server_type_hostname"></th>
+                    </tr>
+                    <tr>
+                        <td class="text-center">刷新时间</td><th class="text-center" id="server_detail_flush_time"></th>
+                        <td class="text-center">备注</td><th class="text-center" id="server_detail_remark"></th>
+                    </tr>
+                </table>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="server_flush()">刷新数据</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+<!-- 添加模态框（Modal） -->
+<div class="modal fade" id="server_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">添加服务器</h5>
+			</div>
+			<div class="modal-body">
+                IP：<input type="text" id="server_ip_add" class="form-control input-sm" /><label for="server_ip_add" ></label>{# 让label的for指向input的id，这样click这个label时，input会获得焦点。#}
+                品牌：<br><select id="server_manufacturer_add"><option>戴尔</option></select><br><label for="server_manufacturer_add" ></label>
+                IDC：<br><select id="server_idc_add"><option>电信IDC机房</option></select><br><label for="server_idc_add" ></label>
+                机架位置：<input type="text" id="server_server_position_add" class="form-control input-sm" /><label for="server_server_position_add"></label>
+                服务器所属组：<br><select id="server_group_add">
+                                <option selected="selected">请选择</option>
+                                <option >WEB服务器</option>
+                                <option >应用服务器</option>
+                                <option >REDIS服务器</option>
+                                <option >MYSQL服务器</option>
+                                <option >MONGO服务器</option>
+                                <option >大数据服务器</option>
+                                </select><br><label for="server_group_add" ></label>
+                上架时间：<input type="date" id="server_add_time_add" class="form-control input-sm" width="100px"/><label for="server_add_time_add"></label>
+                服务器状态：<br><select id="server_status_add">
+                              <option selected="selected">请选择</option>
+                              <option >正在使用</option>
+                              <option >空载运行</option>
+                              <option >关机</option>
+                              </select><br><label for="server_status_add" ></label>
+                备注：<input type="text" id="remark_add" class="form-control input-sm" width="100px" /><label for="remark_add"></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="server_add()">添加</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+<script>
+
+//触发更新模态框的同时调用此方法
+function updateInfo(server_id) {
+    var e = e || window.event;
+    var target = e.target || e.srcElement;
+    if (target.parentNode.tagName.toLowerCase() == "td") {
+        var rowIndex = target.parentNode.parentNode.rowIndex;
+    }
+
+    var table_id = "server_list_table_id"
+    //获取表格中的一行数据
+    var server_ip = document.getElementById(table_id).rows[rowIndex].cells[0].innerText;
+    var server_manufacturer = document.getElementById(table_id).rows[rowIndex].cells[1].innerText;
+    var server_idc = document.getElementById(table_id).rows[rowIndex].cells[2].innerText;
+    var server_server_position = document.getElementById(table_id).rows[rowIndex].cells[3].innerText;
+    var server_group = document.getElementById(table_id).rows[rowIndex].cells[4].innerText;
+    var server_add_time = document.getElementById(table_id).rows[rowIndex].cells[5].innerText;
+    var server_status = document.getElementById(table_id).rows[rowIndex].cells[6].innerText;
+    var remark = document.getElementById(table_id).rows[rowIndex].cells[7].innerText;
+    //向模态框中传值
+    $("#server_id_input").val(server_id)
+    $("#server_ip_input").val(server_ip);
+    $("#server_manufacturer_input").val(server_manufacturer);
+    $("#server_idc_input").val(server_idc);
+    $("#server_server_position_input").val(server_server_position);
+    $("#server_group_input").val(server_group);
+    $("#server_add_time_input").val(server_add_time);
+    $("#server_status_input").val(server_status);
+    $("#remark_input").val(remark);
+}
+
+//提交更改
+function server_update() {
+    //获取模态框数据
+    var server_id=$("#server_id_input").val();
+    var server_ip = $("#server_ip_input").val();
+    var server_manufacturer = $("#server_manufacturer_input").val();
+    var server_idc = $("#server_idc_input").val();
+    var server_server_position = $("#server_server_position_input").val();
+    var server_group = $("#server_group_input").val();
+    var server_add_time = $("#server_add_time_input").val();
+    var server_status = $("#server_status_input").val();
+    var remark = $("#remark_input").val();
+    if (server_ip == 0) {
+        alert("IP不能为空！")
+    }
+    else {
+        $.ajax({
+            type: "POST",
+            url: "/server_update/",
+            data: {
+                'server_id':server_id,
+                'server_ip': server_ip,
+                'server_manufacturer': server_manufacturer,
+                'server_idc': server_idc,
+                'server_server_position': server_server_position,
+                'server_group': server_group,
+                'server_add_time': server_add_time,
+                'server_status': server_status,
+                'remark': remark
+            },
+            success: function (data) {
+                if (data == "OK") {
+                    location.reload();
+                } else {
+                    alert(data)
+                }
+            },
+            error: function (data) {
+                alert(data)
+            }
+        });
+    }
+}
+
+
+
+function server_Del() {
+    var e = e || window.event;
+    var target = e.target || e.srcElement;
+    if (target.parentNode.tagName.toLowerCase() == "td") {
+        var rowIndex = target.parentNode.parentNode.rowIndex;   {# 获取当前行号 #}
+    }
+    var table_id = "server_list_table_id"
+    //获取表格中的一行数据
+    var server_ip = document.getElementById(table_id).rows[rowIndex].cells[0].innerText;
+
+
+
+    if (confirm("删除后无法恢复,确定继续删除吗？")) {
+        $.ajax({
+            type: "POST",
+            url: "/server_delete/",
+            data: {'server_ip': server_ip},
+            success: function (data) {
+                if (data == "OK"){
+                    location.reload();
+                }else{
+                    alert(data)
+                }
+            },
+            error: function (data) {
+                alert(data)
+            }
+        });
+    }
+}
+
+function server_add() {
+    var server_ip = $("#server_ip_add").val();
+    var server_manufacturer = $("#server_manufacturer_add").val();
+    var server_idc = $("#server_idc_add").val();
+    var server_server_position = $("#server_server_position_add").val();
+    var server_group = $("#server_group_add").val();
+    var server_add_time = $("#server_add_time_add").val();
+    var server_status = $("#server_status_add").val();
+    var remark = $("#remark_add").val();
+
+    {#    document.getElementById("server_add").parentNode.parentNode.nodeName#}
+    if (server_ip == 0) {
+        $("#server_ip_add").focus();
+        return false;
+    }
+    if (server_group == "请选择") {
+        $("#server_group_add").focus();
+        return false;
+    }
+    if (server_add_time == 0) {
+        $("#server_add_time_add").focus();
+        return false;
+    }
+    if (server_status == "请选择") {
+        $("#server_status_add").focus();
+        return false;
+    }
+    else {
+        $.ajax({
+            type: "POST",
+            url: "/server_add/",
+            data: {
+                'server_ip': server_ip,
+                'server_manufacturer': server_manufacturer,
+                'server_idc': server_idc,
+                'server_server_position': server_server_position,
+                'server_group': server_group,
+                'server_add_time': server_add_time,
+                'server_status': server_status,
+                'remark': remark
+            },
+            success: function (data) {
+                if (data == "OK") {
+                    location.reload();
+                } else {
+                    alert(data)
+                }
+            },
+            error: function (data) {
+                alert(data)
+            }
+        });
+    }
+}
+
+function server_detail(ip) {
+    $.ajax({
+        type:'GET',
+        url:"/server_detail/",
+        data:{
+            'server_ip':ip
+        },
+{#        dataType:"json",#}
+        success:function (data) {
+            if (data == "False"){
+                alert("账号或密码错误,登录主机失败！")
+            }else{
+{#                alert(data[0])#}
+                $("#hostname").text(data)
+            }
+        },
+        error:function (data) {
+            alert(data)
+        }
+    })
+}
+
+
+</script>
+
+
+{% endblock %}

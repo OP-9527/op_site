@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block content%}
+<h5><strong>服务器抓包信息列表</strong></h5>
+<table id="tcpdump_list_table_id" class="table table-striped table-bordered table-hover">
+    <thead>
+        <tr>
+            <th class="text-center"> IP </th>
+            <th class="text-center"> Tcpdump命令 </th>
+            <th class="text-center"> 操作 </th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for msg_ in msg %}
+        <tr>
+            <td class="text-center" id="ip"> {{ msg_.ip }} </td>
+            <td class="text-center" id="cmd"> {{ msg_.cmd }} </td>
+            <td class="text-center">
+                <input id="start_{{ msg_.id }}" type = "button" value = "开始抓包" class="btn btn-xs btn-primary" onclick="start_tcpdump({{ msg_.id }})" >
+                <input id="stop_{{ msg_.id }}" type = "button" value = "停止抓包" class="btn btn-xs btn-warning" disabled="disabled" onclick="stop_tcpdump('{{ msg_.ip }}','{{ msg_.id }}')" >
+                <input id="update_{{ msg_.id }}" type="button" value="编辑" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#tcpdump_update" onclick="updateInfo({{ msg_.id }})"/>
+                <input id="del_{{ msg_.id }}" type="button" value="删除" class="btn btn-danger btn-xs" onclick="del('{{ msg_.id }}')" />
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<input id = "add_btn" type = "button" value = "添加抓包信息" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#tcpdump_add">
+
+<!-- 添加模态框（Modal） -->
+<div class="modal fade" id="tcpdump_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">添加抓包信息</h5>
+			</div>
+			<div class="modal-body">
+                IP：<input type="text" id="ip_add" class="form-control input-sm" /><label for="ip_add" ></label>
+                Tcpdump命令：<input type="text" id="cmd_add" class="form-control input-sm" /><label for="cmd_add" ></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="app_add()">添加</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+<!-- 更新模态框（Modal） -->
+<div class="modal fade" id="tcpdump_update" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="myModalLabel">修改抓包信息</h5>
+			</div>
+			<div class="modal-body">
+                IP：<input type="text" id="ip_update" class="form-control input-sm" /><label for="ip_update" ></label>
+                Tcpdump命令：<input type="text" id="cmd_update" class="form-control input-sm" /><label for="cmd_update" ></label>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-xs btn-primary" onclick="update_tcpdump()">提交修改</button>
+				<button type="button" class="btn btn-xs btn-default" data-dismiss="modal">关闭</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal）end -->
+
+<script>
+function updateInfo() {
+    var e = e || window.event;
+    var target = e.target || e.srcElement;
+    if (target.parentNode.tagName.toLowerCase() == "td") {
+        var rowIndex = target.parentNode.parentNode.rowIndex;
+    }
+    var table_id = "tcpdump_list_table_id"
+    //获取表格中的一行数据
+    var ip = document.getElementById(table_id).rows[rowIndex].cells[0].innerText;
+    var cmd = document.getElementById(table_id).rows[rowIndex].cells[1].innerText;
+    $("#ip_update").val(ip)
+    $("#cmd_update").val(cmd)
+}
+
+function update_tcpdump() {
+    var ip = $("#ip_update").val()
+    var cmd =$("#cmd_update").val()
+    $.ajax({
+        type: "POST",
+        url: "/tcpdump_update/",
+        data: {
+            'ip':ip,
+            'cmd':cmd
+        },
+        success: function(data) {
+            if (data == "OK"){
+                location.reload();
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    });
+}
+
+function start_tcpdump(id) {
+    var e = e || window.event;
+    var target = e.target || e.srcElement;
+    if (target.parentNode.tagName.toLowerCase() == "td") {
+        var rowIndex = target.parentNode.parentNode.rowIndex;
+    }
+    var table_id = "tcpdump_list_table_id"
+    //获取表格中的一行数据
+    var ip = document.getElementById(table_id).rows[rowIndex].cells[0].innerText;
+    var cmd = document.getElementById(table_id).rows[rowIndex].cells[1].innerText;
+    $.ajax({
+        type:'GET',
+        url:'/tcpdump_start/',
+        data:{
+            'ip':ip,
+            'cmd':cmd
+        },
+        success: function(data) {
+            if (data == "OK"){
+                $("#start_"+id).val("正在抓包");
+                $("#start_"+id).attr("disabled", true);
+                $("#del_"+id).attr("disabled", true);
+                $("#update_"+id).attr("disabled", true);
+                $("#stop_"+id).attr("disabled", false);
+
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    })
+}
+
+function stop_tcpdump(ip,id) {
+    $.ajax({
+        type:'GET',
+        url:'/tcpdump_stop/',
+        data:{
+            'ip':ip
+        },
+        success: function(data) {
+            if (data == "OK"){
+                $("#start_"+id).val("开始抓包");
+                $("#start_"+id).attr("disabled", false);
+                $("#stop_"+id).attr("disabled", true);
+                $("#del_"+id).attr("disabled", false);
+                $("#update_"+id).attr("disabled", false);
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    })
+}
+
+function del(id) {
+    if (confirm("确定删除？")) {
+        $.ajax({
+            type: "POST",
+            url: "/tcpdump_delete/",
+            data: {"id": id},
+            success: function (data) {
+                if (data == "OK"){
+                    location.reload();
+                }else{
+                    alert(data)
+                }
+            },
+            error: function (data) {
+                alert(data)
+            }
+        });
+    }
+}
+
+function app_add() {
+    //获取模态框数据
+    var ip=$("#ip_add").val();
+    var cmd=$("#cmd_add").val();
+    $.ajax({
+        type: "POST",
+        url: "/tcpdump_add/",
+        data: {
+            'ip':ip,
+            'cmd':cmd
+        },
+        success: function(data) {
+            if (data == "OK"){
+                location.reload();
+            }else{
+                alert(data)
+            }
+        },
+        error: function (data) {
+            alert(data)
+        }
+    });
+}
+
+</script>
+
+{% endblock %}

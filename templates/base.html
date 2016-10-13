@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>运维平台</title>
+    <link rel="icon" href="/static/bootstrap/img/4f.png" />
+    {% include 'public_js.html' %}
+    {% include 'public_css.html' %}
+
+    <style>
+        .navbar.navbar-fixed-top{
+            background: #2b669a;
+            height: 20px;
+        }          {# 定义顶部导航栏的背景颜色为蓝色 #}
+        .navbar-toggle.show.pull-left{
+            background: #ffffff;
+        }     {# 定义页面左上角的按钮的颜色为白色 #}
+        .icon-bar{
+            background: #000;
+        }                         {# 定义页面左上角的按钮里面的线条的颜色 #}
+        .navbar-brand,.navbar-brand:hover{
+            color: #ffffff;                    {# a标签的颜色 #}
+            font-size: 22px;
+            cursor: default;                   {# 鼠标移动到a标签上时不变形 #}
+        } {# 定义CMDB这个a标签的属性以及鼠标移动到a标签上面时的属性#}
+        .dropdown-toggle{
+            color: #ffffff;
+            font-size: 15px;
+        }                  {# 设置登录用户区域的颜色及字体大小 #}
+        .nav.navbar-nav.navbar-right>li>a,.nav.navbar-nav.navbar-right>li>a:hover{
+            background: #2b669a;
+            color: #ffffff;
+        }    {# 定义鼠标在登录用户区域的颜色，两个事件合在一起写，中间用逗号隔开 #}
+
+        .maincontent{
+            padding-top: 20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <nav class="navbar navbar-fixed-top" role="navigation">   {# 页面顶端的导航栏，navbar-fixed-top把导航栏固定在页面的顶部,navbar-inverse创建一个带有黑色背景白色文本的倒置的导航栏 #}
+        <div class="container-fluid">  {#流式布局容器,加上这个class，导航栏左右两边的元素不会紧靠着页面边框，会向中间靠拢，视觉上好点 #}
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle show pull-left" data-target="sidebar"> {# pull-left元素浮动到左边，show强制元素显示#} {# 收起左边导航栏 #}
+                    {#<span class="sr-only">Toggle navigation</span>#} {# sr-only除了屏幕阅读器外，其他设备上隐藏元素 #}
+                    <span class="icon-bar"></span>   {# 页面左上角的按钮里面的横线 #}
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand">运维平台</a>
+            </div>
+
+            <div>
+                <ul class="nav navbar-nav navbar-right">  {# navbar-right元素靠右边 #}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                            <i class="fa fa-user fa-fw"></i>登录用户：{{ user }}<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a><i class="fa fa-user fa-fw"></i>账号信息</a></li>
+                            <li class="divider"></li>
+                            <li><a><i class="fa fa-edit fa-fw"></i>修改密码</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/logout/"><i class="fa fa-sign-out fa-fw"></i>退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>    {# 顶部区 #}
+
+    <div class="container-fluid all">
+        <div class="sidebar">
+            <ul class="nav">
+                <li><a href="/index/"><i id="index" class="fa fa-home fa-fw"></i>主页面</a></li>  {# class="active"表示选择这个列  #}
+                <li><a href="/idc_list/"><i id="idc" class="fa fa-institution fa-fw"></i>机房信息</a></li>
+
+                <li class="has-sub">
+                    <a href="javascript:void(0);"><i class="fa fa-list-alt fa-fw"></i>业务变更<i id="business" class="fa fa-caret-down fa-fw pull-right"></i></a>
+                    <ul class="sub-menu">
+                        <li><a href="/app_package_list/"><i class="fa fa-hand-o-right fa-fw"></i>应用包列表</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-sub">
+                    <a href="javascript:void(0);"><i class="fa fa-cubes fa-fw"></i>资产管理<i id="property" class="fa fa-caret-down fa-fw pull-right"></i></a>
+                    <ul class="sub-menu">
+                        <li><a href="/server_list/"><i class="fa fa-hand-o-right fa-fw"></i>服务器管理</a></li>
+                        <li><a href="/app_list/"><i class="fa fa-hand-o-right fa-fw"></i>应用管理</a></li>
+                        <li><a href="/hostaccount_list/"><i class="fa fa-hand-o-right fa-fw"></i>主机账号管理</a></li>
+                    </ul>
+                </li>
+
+                <li class="has-sub">
+                    <a href="javascript:void(0);"><i class="fa fa-wrench fa-fw"></i>小工具<i id="tools" class="fa fa-caret-down fa-fw pull-right"></i></a>
+                    <ul class="sub-menu">
+                        <li><a href="/tcpdump_list/"><i class="fa fa-hand-o-right fa-fw"></i>服务器抓包</a></li>
+                        <li><a href="/app_status_list/"><i class="fa fa-hand-o-right fa-fw"></i>应用状态信息</a></li>
+                        <li><a href="/api_status_list/"><i class="fa fa-hand-o-right fa-fw"></i>接口状态信息</a></li>
+                        <li><a href="/up_load_list/"><i class="fa fa-hand-o-right fa-fw"></i>上传下载文件</a></li>
+                        <li><a href="/exec_command/"><i class="fa fa-hand-o-right fa-fw"></i>命令</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>    {# 左侧导航栏 #}
+
+        <div class="maincontent">
+            {% block content %}{% endblock %}
+        </div>    {# 主内容区 #}
+    </div>
+
+</body>
+</html>

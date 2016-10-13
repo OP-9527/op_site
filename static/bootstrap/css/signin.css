@@ -1,0 +1,46 @@
+body {
+  padding-top: 170px;
+  padding-bottom: 40px;
+  background-color: #f8f8f8;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="text"] {    /*设置用户名输入框的形状*/
+  margin-top: 40px;
+  margin-bottom: 10px;       /* margin-bottom属性设置的是一个元素的底部与另外一个元素之间的距离。这个距离称为下外边距。 */
+  height: 34px;
+  border-radius: 2px;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  height: 34px;
+  border-radius: 2px;    /*!* 定义左上角边框的形状,这四个分别设置四个角是直角还是圆角 *!*/
+}
+
+button[type="submit"]{
+  height: 34px;
+  border-radius: 2px;   /* 设置方框的边角*/
+}
