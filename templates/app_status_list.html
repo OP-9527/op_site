@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<meta http-equiv="refresh" content="15">   {# 每5秒自动刷新页面 #}
+{#<meta http-equiv="refresh" content="5">   {# 每5秒自动刷新页面 #}
 <h5><strong>应用状态及信息列表</strong></h5>
 <table id="app_status_list_table_id" class="table table-striped table-bordered table-hover">
     <thead>
@@ -11,35 +11,35 @@
             <th class="text-center"> 启动时间 </th>
             <th class="text-center"> 进程状态 </th>
             <th class="text-center"> 描述 </th>
+            <th class="text-center"> 操作 </th>
         </tr>
     </thead>
     <tbody>
         {% for apps in result %}
         <tr>
-            <td class="text-center" id="ip"> {{ apps.app_name }} </td>
-            <td class="text-center" id="app"> {{ apps.url }} </td>
-            <td class="text-center" id="app_path">{{ apps.app_path }}</td>
+            <td class="text-center" id="app_name"> {{ apps.app_name }} </td>
+            <td class="text-center" id="app_url"> {{ apps.url }} </td>
+            <td class="text-center" id="app_path">{{ apps.app_install_path }}</td>
+
             {% if apps.error %}
-                <td class="text-center" id="up_time"></td>
+                <td class="text-center" id="up_time">{{ apps.app_uptime }}</td>
                 <td class="text-center" id="status" style="background-color: #b92c28">{{ apps.status }}</td>
-                <td class="text-center" id="description">{{ apps.error }}</td>
+                <td class="text-center" id="description" >{{ apps.error }}</td>
             {% else %}
-                {% if apps.status == 'Running' %}
-                    <td class="text-center" id="up_time">{{ apps.up_time }}</td>
-                    <td class="text-center" id="status" style="background-color: #4cae4c">{{ apps.status }}</td>
-                    {% if apps.code == 200 %}
-                        <td class="text-center" id="description">PID:{{ apps.pid }} CODE:[{{ apps.code }}]</td>
-                    {% else %}
-                        <td class="text-center" id="description" style="color: #b92c28">PID:{{ apps.pid }} CODE:[{{ apps.code }}]</td>
-                    {% endif %}
-                {% else %}
-                    <td class="text-center" id="up_time"></td>
-                    <td class="text-center" id="status" style="background-color: #b92c28">{{ apps.status }}</td>
-                    <td class="text-center" id="description"></td>
-                {% endif %}
-            {% endif %}
+                <td class="text-center" id="up_time">{{ apps.app_uptime }}</td>
+                <td class="text-center" id="status" style="background-color: #4cae4c">{{ apps.status }}</td>
+                <td class="text-center" id="description">CODE:[{{ apps.app_code }}]</td>
+            {% endif%}
+
+            <td class="text-center">
+                <input id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="">
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+
+
+
 {% endblock %}

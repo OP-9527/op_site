@@ -1,5 +1,6 @@
 #!coding:utf-8
 from django.db import models
+from django.contrib import admin
 
 # Create your models here.
 
@@ -97,3 +98,21 @@ class AppName(models.Model):
     app_type = models.CharField(verbose_name=u'应用包类型', max_length=50)
     war_path = models.CharField(verbose_name=u'应用包路径', max_length=200)
     remark = models.CharField(verbose_name=u'备注', max_length=100)
+
+
+class Blog(models.Model):
+    title = models.CharField(max_length=150, verbose_name=u'文章标题')
+    author = models.CharField(max_length=50, verbose_name=u'作者')
+    content = models.TextField(verbose_name=u'文章内容')
+    pub_time = models.DateTimeField(auto_now_add=True, verbose_name=u'文章发布时间')   # auto_now_add 更新对象时时间不会有变动
+    update_time = models.DateTimeField(auto_now=True, verbose_name=u'文章修改时间')    # auto_now 更新对象时时间会有变动
+
+    def __unicode__(self):
+        return self.title
+
+
+class BlogDispaly(admin.ModelAdmin):
+    list_display = ('title', 'author', 'pub_time', 'update_time')   # list_display 配置要显示的字段
+
+admin.site.register(Blog, BlogDispaly)
+

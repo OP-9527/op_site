@@ -17,6 +17,7 @@ import urllib2
 import re
 import os
 import requests
+import multiprocessing
 
 # Create your views here.
 
@@ -390,60 +391,94 @@ def tcpdump_add(request):
 def app_status_list(request):
     result = []
     threads = []
-    app_dict = {}
     app_info = models.AppStatus.objects.all()
     if not app_info:
-        return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
+        return render_to_response('app_status_list.html', {'user': request.user, 'result': ''})
     else:
         for apps in app_info:
-            app_id = apps.id
-            url = apps.url
-            app_name = apps.app_name
-            ip = url.split(":")[0]
-            port = url.split(":")[1]
+            id_ = apps.id
+            url_ = apps.url
+            ip_ = url_.split(":")[0]
+            name_ = apps.app_name
+            path_ = "/usr/local/" + apps.app_name
 
-            app_status(ip, port, url, app_name, result)
+            t = threading.Thread(target=get_app_status, args=(id_, url_, ip_, name_, path_, result))
+            threads.append(t)
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
 
-        #     t = threading.Thread(target=app_status, args=(ip, port, url, app_name, result))
-        #     threads.append(t)
-        # for t in threads:
-        #     t.start()
-        # for t in threads:
-        #     t.join()
+        result.sort(lambda x, y: cmp(x['id'], y['id']))   # result数组中的元素按id排序
 
-        return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
+    return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
 
 
-def app_status(ip, port, url, app_name, array):
-    ip = ip
-    port = port
-    url = url
-    app_name = app_name
-    result = array
-    app_install_path = "/usr/local/" + app_name
-
-    ssh = get_ssh(ip, 'root', '6zFUF1enQ25RVux3TXQ=')
+def get_app_status(id_, url_, ip_, name_, path_, result):
+    ssh = get_ssh(ip_, 'root', '6zFUF1enQ25RVux3TXQ=')
     if ssh == "False":
-        error = "登录失败！"
-        result.append({'url': url, 'app_name': app_name, 'status': 'No Running', 'app_path': app_install_path, 'error': error})
-        return result
+        app_dict = {
+            'id': id_,
+            'app_name': name_,
+            'url': url_,
+            'app_install_path': path_,
+            'status': 'Unknow',
+            'app_uptime': '',
+            'app_code': '',
+            'error': '登录失败'
+        }
+        result.append(app_dict)
+        return
     else:
-        pid_cmd = "netstat -ltunp|grep \":%s \"|awk '{print $7}'|awk -F\"/\" '{print $1}'" % port
-        stdin, stdout, stderr = ssh.exec_command(pid_cmd)
-        pid = stdout.read().strip()
-        if pid:
-            uptime_cmd = "ps -ef |grep \" %s \"|grep -v grep|awk '{print $5}'" % pid
-            stdin, stdout, stderr = ssh.exec_command(uptime_cmd)
-            uptime = stdout.read().strip()
-            urls = "http://" + url
-            code = requests.get(urls).status_code
-            result.append(
-                {'url': url, 'app_name': app_name, 'status': 'Running', 'pid': pid, 'up_time': uptime, 'code': code, 'app_path': app_install_path}
-            )
-            return result
+        uptime_cmd = "ps -eo pid,lstart,comm|grep java|grep `ps -ef|grep -v grep|grep java|grep %s|awk '{print $2}'`|awk '{print $6\"/\"$3\"/\"$4\" \"$5}'" % name_
+        stdin, stdout, stderr = ssh.exec_command(uptime_cmd)
+        app_uptime = stdout.read().strip()
+        if not app_uptime:      # 判断进程是否存在
+            app_dict = {
+                'id': id_,
+                'app_name': name_,
+                'url': url_,
+                'app_install_path': path_,
+                'status': 'No Running',
+                'app_uptime': '',
+                'app_code': '',
+                'error': 'No Running'
+            }
+            result.append(app_dict)
+            return
         else:
-            result.append({'url': url, 'app_name': app_name, 'status': 'No Running', 'app_path': app_install_path})
-            return result
+            try:
+                urls = "http://" + url_
+                app_code = requests.get(urls).status_code
+                app_dict = {
+                    'id': id_,
+                    'app_name': name_,
+                    'url': url_,
+                    'app_install_path': path_,
+                    'status': 'Running',
+                    'app_uptime': app_uptime,
+                    'app_code': app_code,
+                    'error': ''
+                }
+                result.append(app_dict)
+                return
+            except Exception, e:
+                app_dict = {
+                    'id': id_,
+                    'app_name': name_,
+                    'url': url_,
+                    'app_install_path': path_,
+                    'status': 'Running',
+                    'app_uptime': '',
+                    'app_code': '',
+                    'error': e
+                }
+                result.append(app_dict)
+                return
+
+
+def app_restart(request):
+    return "OK"
 
 
 def get_api_status(url):

@@ -16,12 +16,13 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from op_app.views import *
+from op_app.blog import *
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^$', index, name='index'),
-    url(r'^index/$', index, name='index'),
+    url(r'^$', 'op_app.views.index', name='index'),
+    url(r'^index/$', 'op_app.views.index', name='index'),
     url(r'^login/$', login, name='login'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}),
     url(r'^logout/$', logout, name='logout'),
@@ -56,6 +57,7 @@ urlpatterns = [
 
     url(r'^app_status_list/$', app_status_list, name='app_status_list'),
     url(r'^api_status_list/$', api_status_list, name='api_status_list'),
+    url(r'^app_restart/$', app_restart, name='app_restart'),
 
     url(r'^up_load_list/$', up_load_list, name='up_load_list'),
     url(r'^upload_file/$', upload_file, name='upload_file'),
@@ -63,5 +65,7 @@ urlpatterns = [
     url(r'^app_package_list/$', app_package_list, name='app_package_list'),
 
     url(r'^exec_command/$', exec_command, name='exec_command'),
+
+    url(r'^blog/$', 'op_app.blog.index', name='blog'),
 ]
 

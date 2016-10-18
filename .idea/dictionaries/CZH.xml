@@ -15,9 +15,11 @@
       <w>cpuinfo</w>
       <w>csrf</w>
       <w>dataurl</w>
+      <w>dispaly</w>
       <w>dmidecode</w>
       <w>dropdown</w>
       <w>egrep</w>
+      <w>etime</w>
       <w>fdisk</w>
       <w>forkme</w>
       <w>getbootstrap</w>
@@ -27,6 +29,7 @@
       <w>howto</w>
       <w>ibox</w>
       <w>idcmsg</w>
+      <w>lstart</w>
       <w>ltunp</w>
       <w>maincontent</w>
       <w>maxmin</w>
@@ -37,6 +40,7 @@
       <w>necolas</w>
       <w>netstat</w>
       <w>openli</w>
+      <w>pnum</w>
       <w>proc</w>
       <w>productname</w>
       <w>scrolltopcontrol</w>
@@ -47,6 +51,7 @@
       <w>staticfies</w>
       <w>stdin</w>
       <w>uniq</w>
+      <w>unknow</w>
       <w>uptime</w>
       <w>wsgi</w>
     </words>
