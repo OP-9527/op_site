@@ -13,11 +13,11 @@ $(window).resize(function () {
 var pageInitModule = (function (mod) {
     mod.setWidth = function () {
         if ($(window).width() < 768) {
-            $(".sidebar").css({ left: -180 });
+            $(".sidebar").css({ left: -200 });
             $(".all").css({ marginLeft: 0 });
         } else {
             $(".sidebar").animate({ left: 0 });
-            $(".all").animate({ marginLeft: 180 });
+            $(".all").animate({ marginLeft: 200 });
         }
     };  //设置主内容区的div到左边框的距离
 

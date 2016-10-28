@@ -24,7 +24,14 @@ import multiprocessing
 
 @login_required
 def index(request):
-    return render_to_response('index.html', {'user': request.user})
+    if 'HTTP_X_FORWARDED_FOR' in request.META:
+        ip = request.META['HTTP_X_FORWARDED_FOR']
+    else:
+        ip = request.META['REMOTE_ADDR']
+
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+    return render_to_response('index.html', {'user': request.user, 'ip': ip, 'user_agent': user_agent})
 
 
 def login(request):
@@ -477,8 +484,25 @@ def get_app_status(id_, url_, ip_, name_, path_, result):
                 return
 
 
-def app_restart(request):
-    return "OK"
+def tomcat_restart(request):
+    url = request.GET.get('url', '')
+    app_name = request.GET.get('app_name', '')
+    path = request.GET.get('path', '')
+    ip = url.split(":")[0]
+
+    try:
+        auth_ = models.HostAccount.objects.get(ip=ip)
+        user = auth_.user
+        pwd = auth_.password
+        ssh = get_ssh(ip, user, pwd)
+        if ssh == "False":
+            return HttpResponse("登录失败")
+        else:
+            pid_cmd = "ps -ef|grep -v grep|grep java|grep %s|awk '{print $2}'|xargs kill;%s/bin/catalina.sh start" % (app_name, path)
+            ssh.exec_command(pid_cmd)
+            return HttpResponse("OK")
+    except Exception, e:
+        return HttpResponse(e)
 
 
 def get_api_status(url):

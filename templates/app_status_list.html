@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-{#<meta http-equiv="refresh" content="5">   {# 每5秒自动刷新页面 #}
+{#<meta http-equiv="refresh" content="5">   {# 每5秒自动刷新页面#}
 <h5><strong>应用状态及信息列表</strong></h5>
 <table id="app_status_list_table_id" class="table table-striped table-bordered table-hover">
     <thead>
@@ -32,13 +32,40 @@
             {% endif%}
 
             <td class="text-center">
-                <input id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="">
+                <input  id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="tomcat_restart('{{ apps.id }}', '{{ apps.app_name }}', '{{ apps.url }}', '{{ apps.app_install_path }}')">
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+<script>
+function tomcat_restart(id, app_name, url, path) {
+    var btn_id = $("#restart_"+id);
+    btn_id.val("正在重启");
+    btn_id.attr("disabled", true);
+    $.ajax({
+        type:'GET',
+        url:'/tomcat_restart/',
+        data:{'app_name': app_name, 'url': url, 'path': path},
+        success:function (data) {
+            if (data == "OK"){
+                btn_id.val("重启完成");
+                btn_id.attr("disabled", false);
+            }else{
+                btn_id.val("重启失败");
+                btn_id.attr("disabled", false);
+            }
+        },
+        error:function (data) {
+            alert(data);
+            btn_id.val("重启错误");
+            btn_id.attr("disabled", false);
+        }
+    });
+}
+
+</script>
 
 
 

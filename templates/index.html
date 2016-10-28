@@ -1,7 +1,28 @@
 {% extends 'base.html' %}   {# 继承base.html模板 #}
 {% block content %}
-    <h3>运维平台</h3>
-    <a href="blog">博客地址</a>
+{#    <h3>运维平台</h3>#}
+    <a href="/blog/" style="color: #0593d3;">博客地址</a><br/><br/>
+    <p style="color: green;">客户端信息：</p><br/>
+    IP：{{ ip }}<br/>
+    系统：{{ user_agent }}<br/><br/>
+
+    <p style="color: green;">当前时间：</p><p id="now_time"></p><br/>
+
+
+<script>
+
+function now_time() {
+    var myDate = new Date();
+    var week = myDate.getDay();
+    var ss = myDate.toLocaleString();
+    document.getElementById("now_time").innerHTML = ss + " 星期" + week
+}
+
+setInterval("now_time()", 1000);
+
+
+</script>
+
 {% endblock %}
 
 

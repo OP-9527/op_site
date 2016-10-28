@@ -57,7 +57,7 @@ urlpatterns = [
 
     url(r'^app_status_list/$', app_status_list, name='app_status_list'),
     url(r'^api_status_list/$', api_status_list, name='api_status_list'),
-    url(r'^app_restart/$', app_restart, name='app_restart'),
+    url(r'^tomcat_restart/$', tomcat_restart, name='tomcat_restart'),
 
     url(r'^up_load_list/$', up_load_list, name='up_load_list'),
     url(r'^upload_file/$', upload_file, name='upload_file'),
