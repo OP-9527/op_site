@@ -77,7 +77,7 @@ class HostAccount(models.Model):       # 主机账号密码
     ip = models.GenericIPAddressField()
     user = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
-    remark = models.CharField(max_length=160, verbose_name=u'备注')
+    remark = models.CharField(max_length=160, null=True, verbose_name=u'备注')
 
     def __unicode__(self):
         return self.ip

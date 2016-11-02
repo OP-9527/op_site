@@ -7,11 +7,7 @@ from django.contrib import auth
 from op_app import models
 from django.template import RequestContext
 from public import get_ssh
-from django.core import serializers
-from django.views.decorators.csrf import csrf_exempt
 
-import pycurl
-import StringIO
 import threading
 import urllib2
 import re
@@ -397,97 +393,92 @@ def tcpdump_add(request):
 
 def app_status_list(request):
     result = []
-    threads = []
+
     app_info = models.AppStatus.objects.all()
     if not app_info:
         return render_to_response('app_status_list.html', {'user': request.user, 'result': ''})
     else:
         for apps in app_info:
-            id_ = apps.id
-            url_ = apps.url
-            ip_ = url_.split(":")[0]
-            name_ = apps.app_name
-            path_ = "/usr/local/" + apps.app_name
+            app_id = apps.id
+            app_url = apps.url
+            app_name = apps.app_name
 
-            t = threading.Thread(target=get_app_status, args=(id_, url_, ip_, name_, path_, result))
-            threads.append(t)
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
+            app_dict = get_app_status(app_id, app_url, app_name)
 
-        result.sort(lambda x, y: cmp(x['id'], y['id']))   # result数组中的元素按id排序
-
-    return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
+            result.append(app_dict)
+            print result
+        return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
 
 
-def get_app_status(id_, url_, ip_, name_, path_, result):
-    ssh = get_ssh(ip_, 'root', '6zFUF1enQ25RVux3TXQ=')
-    if ssh == "False":
-        app_dict = {
-            'id': id_,
-            'app_name': name_,
-            'url': url_,
-            'app_install_path': path_,
-            'status': 'Unknow',
-            'app_uptime': '',
-            'app_code': '',
-            'error': '登录失败'
-        }
-        result.append(app_dict)
-        return
-    else:
-        uptime_cmd = "ps -eo pid,lstart,comm|grep java|grep `ps -ef|grep -v grep|grep java|grep %s|awk '{print $2}'`|awk '{print $6\"/\"$3\"/\"$4\" \"$5}'" % name_
-        stdin, stdout, stderr = ssh.exec_command(uptime_cmd)
-        app_uptime = stdout.read().strip()
-        if not app_uptime:      # 判断进程是否存在
+def get_app_status(app_id, app_url, app_name):
+    app_ip = app_url.split(":")[0]
+    app_port = app_url.split(":")[1]
+    try:
+        auth_ = models.HostAccount.objects.get(ip=app_ip)
+        user = auth_.user
+        pwd = auth_.password
+
+        ssh = get_ssh(app_ip, user, pwd)
+        if ssh == "False":
             app_dict = {
-                'id': id_,
-                'app_name': name_,
-                'url': url_,
-                'app_install_path': path_,
-                'status': 'No Running',
+                'id': app_id,
+                'app_name': app_name,
+                'url': app_url,
+                'status': 'Unknow',
                 'app_uptime': '',
                 'app_code': '',
-                'error': 'No Running'
+                'error': '登录失败'
             }
-            result.append(app_dict)
-            return
+            return app_dict
         else:
-            try:
-                urls = "http://" + url_
+            pid_cmd = "netstat -tunlp|grep ':%s '|awk '{print $7}'|awk -F/ '{print $1}'" % app_port
+            stdin, stdout, stderr = ssh.exec_command(pid_cmd)
+            pid = stdout.read().strip()
+
+            if not pid:
+                app_dict = {
+                    'id': app_id,
+                    'app_name': app_name,
+                    'url': app_url,
+                    'status': 'No Running',
+                    'app_uptime': '',
+                    'app_code': '',
+                    'error': '进程不存在'
+                }
+                return app_dict
+            else:
+                uptime_cmd = "ps -eo pid,lstart,comm|grep java|grep `netstat -tunlp|grep ':%s '|awk '{print $7}'|awk -F/ '{print $1}'`|awk '{print $6\"/\"$3\"/\"$4\" \"$5}'" % app_port
+                stdin, stdout, stderr = ssh.exec_command(uptime_cmd)
+                app_uptime = stdout.read().strip()
+
+                urls = "http://" + app_url
                 app_code = requests.get(urls).status_code
                 app_dict = {
-                    'id': id_,
-                    'app_name': name_,
-                    'url': url_,
-                    'app_install_path': path_,
+                    'id': app_id,
+                    'app_name': app_name,
+                    'url': app_url,
                     'status': 'Running',
                     'app_uptime': app_uptime,
                     'app_code': app_code,
                     'error': ''
                 }
-                result.append(app_dict)
-                return
-            except Exception, e:
-                app_dict = {
-                    'id': id_,
-                    'app_name': name_,
-                    'url': url_,
-                    'app_install_path': path_,
-                    'status': 'Running',
-                    'app_uptime': '',
-                    'app_code': '',
-                    'error': e
-                }
-                result.append(app_dict)
-                return
+                return app_dict
+    except Exception, e:
+        app_dict = {
+            'id': app_id,
+            'app_name': app_name,
+            'url': app_url,
+            'status': 'Unknow',
+            'app_uptime': '',
+            'app_code': '',
+            'error': e
+        }
+        return app_dict
 
 
 def tomcat_restart(request):
     url = request.GET.get('url', '')
     app_name = request.GET.get('app_name', '')
-    path = request.GET.get('path', '')
     ip = url.split(":")[0]
 
     try:
@@ -498,7 +489,7 @@ def tomcat_restart(request):
         if ssh == "False":
             return HttpResponse("登录失败")
         else:
-            pid_cmd = "ps -ef|grep -v grep|grep java|grep %s|awk '{print $2}'|xargs kill;%s/bin/catalina.sh start" % (app_name, path)
+            pid_cmd = "ps -ef|grep -v grep|grep java|grep %s|awk '{print $2}'|xargs kill -9;/usr/local/%s/bin/catalina.sh start" % (app_name, app_name)
             ssh.exec_command(pid_cmd)
             return HttpResponse("OK")
     except Exception, e:

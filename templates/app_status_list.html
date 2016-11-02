@@ -19,35 +19,36 @@
         <tr>
             <td class="text-center" id="app_name"> {{ apps.app_name }} </td>
             <td class="text-center" id="app_url"> {{ apps.url }} </td>
-            <td class="text-center" id="app_path">{{ apps.app_install_path }}</td>
-
+            <td class="text-center" id="app_path">/usr/local/{{ apps.app_name }}</td>
             {% if apps.error %}
                 <td class="text-center" id="up_time">{{ apps.app_uptime }}</td>
                 <td class="text-center" id="status" style="background-color: #b92c28">{{ apps.status }}</td>
                 <td class="text-center" id="description" >{{ apps.error }}</td>
+                <td class="text-center">
+                    <input disabled="disabled"  id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="tomcat_restart('{{ apps.id }}', '{{ apps.app_name }}', '{{ apps.url }}')">
+                </td>
             {% else %}
                 <td class="text-center" id="up_time">{{ apps.app_uptime }}</td>
                 <td class="text-center" id="status" style="background-color: #4cae4c">{{ apps.status }}</td>
                 <td class="text-center" id="description">CODE:[{{ apps.app_code }}]</td>
+                <td class="text-center">
+                    <input  id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="tomcat_restart('{{ apps.id }}', '{{ apps.app_name }}', '{{ apps.url }}')">
+                </td>
             {% endif%}
-
-            <td class="text-center">
-                <input  id = "restart_{{ apps.id }}" type = "button" value = "重启应用" class="btn btn-xs btn-primary" onclick="tomcat_restart('{{ apps.id }}', '{{ apps.app_name }}', '{{ apps.url }}', '{{ apps.app_install_path }}')">
-            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
 <script>
-function tomcat_restart(id, app_name, url, path) {
+function tomcat_restart(id, app_name, url) {
     var btn_id = $("#restart_"+id);
     btn_id.val("正在重启");
     btn_id.attr("disabled", true);
     $.ajax({
         type:'GET',
         url:'/tomcat_restart/',
-        data:{'app_name': app_name, 'url': url, 'path': path},
+        data:{'app_name': app_name, 'url': url},
         success:function (data) {
             if (data == "OK"){
                 btn_id.val("重启完成");
@@ -66,7 +67,5 @@ function tomcat_restart(id, app_name, url, path) {
 }
 
 </script>
-
-
 
 {% endblock %}
