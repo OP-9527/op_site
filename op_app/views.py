@@ -1,19 +1,21 @@
 #! coding:utf-8
+import os
+import re
+import threading
+import urllib2
+
+import requests
+from django.contrib import auth
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.shortcuts import render_to_response
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
-from op_app import models
 from django.template import RequestContext
+
+from op_app import models
+# from op_app.websocket.start_websocket import tcpdump
 from public import get_ssh
 
-import threading
-import urllib2
-import re
-import os
-import requests
-import multiprocessing
 
 # Create your views here.
 
@@ -393,20 +395,22 @@ def tcpdump_add(request):
 
 def app_status_list(request):
     result = []
+    threads = []
 
     app_info = models.AppStatus.objects.all()
     if not app_info:
         return render_to_response('app_status_list.html', {'user': request.user, 'result': ''})
     else:
+
         for apps in app_info:
             app_id = apps.id
             app_url = apps.url
             app_name = apps.app_name
 
-            app_dict = get_app_status(app_id, app_url, app_name)
+            msg = get_app_status(app_id, app_url, app_name)
+            result.append(msg)
 
-            result.append(app_dict)
-            print result
+        print result
         return render_to_response('app_status_list.html', {'user': request.user, 'result': result})
 
 
@@ -573,4 +577,58 @@ def app_package_list(request):
 
 def exec_command(request):
     return render_to_response('exec_command.html', {'user': request.user})
+
+
+def conf_list(request):
+    msg = models.ConfigManage.objects.all()
+    return render_to_response('conf_list.html', {'user': request.user, 'msg': msg})
+
+
+def conf_show(request):
+    ip = request.GET.get('host', '')
+    path = request.GET.get('path', '')
+
+    auth_ = models.HostAccount.objects.get(ip=ip)
+    user = auth_.user
+    pwd = auth_.password
+
+    ssh = get_ssh(ip, user, pwd)
+    cmd = "cat %s" % path
+    stdin, stdout, stderr = ssh.exec_command(cmd)
+    if not stderr.read():
+        msg = stdout.read()
+    else:
+        msg = stderr.read()
+    return HttpResponse(msg)
+
+
+def conf_add(request):
+    host = request.GET.get('host', '')
+    path = request.GET.get('path', '')
+    print host+"11"
+    print path+"dd"
+
+    models.ConfigManage.objects.create(
+        host=host,
+        file_path=path
+    )
+    return HttpResponse("OK")
+
+
+def log_show(request):
+    return render_to_response('log_show.html', {'user': request.user})
+
+
+def log_get(ip):
+    # auth_ = models.HostAccount.objects.get(ip=ip)
+    # user = auth_.user
+    # pwd = auth_.password
+    # ssh = get_ssh(ip, user, pwd)
+    # cmd = "ip a"
+    # stdin, stdout, stderr = ssh.exec_command(cmd)
+    # return stdout.read()
+    return "this is a test"
+
+
+
 

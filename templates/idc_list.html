@@ -1,41 +1,57 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h5><strong>机房信息列表</strong></h5>
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="page-header">机房信息列表</h3>
+    </div>
+</div>
 
-<table id="idc_list_table_id" class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr>
-            <th class="text-center"> ID </th>
-            <th class="text-center"> 机房名称 </th>
-            <th class="text-center"> 机房地址 </th>
-            <th class="text-center"> 机房联系人 </th>
-            <th class="text-center"> 机房联系人电话 </th>
-            <th class="text-center"> 备注 </th>
-            <th class="text-center"> 操作 </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for idcmsg in idc_msg %}
-        <tr>
-            <td class="text-center" id="idc_id_id"> {{ idcmsg.id }} </td>
-            <td class="text-center" id="idc_name_id"> {{ idcmsg.idc_name }} </td>
-            <td class="text-center" id="idc_addr_id"> {{ idcmsg.idc_addr }} </td>
-            <td class="text-center" id="idc_user_name_id"> {{ idcmsg.idc_user_name }} </td>
-            <td class="text-center" id="idc_user_phone_id"> {{ idcmsg.idc_user_phone}} </td>
-            <td class="text-center" id="remark_id"> {{ idcmsg.remark }} </td>
-            <td class="text-center">
-                <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#update_idc" onclick="updateInfo()">
-                <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="del({{ idcmsg.id }})">
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<input id = "add_btn" type = "button" value = "添加机房" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#add_idc">  {# data-target="#add_idc" 指向add_idc这个模态框 #}
+<div class="row">
+    <div class="col-lg-12">
+        <table width="100%" id="idc_list_table_id" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center"> ID </th>
+                    <th class="text-center"> 机房名称 </th>
+                    <th class="text-center"> 机房地址 </th>
+                    <th class="text-center"> 机房联系人 </th>
+                    <th class="text-center"> 机房联系人电话 </th>
+                    <th class="text-center"> 备注 </th>
+                    <th class="text-center"> 操作 </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for idcmsg in idc_msg %}
+                <tr class="odd">
+                    <td class="text-center" id="idc_id_id"> {{ idcmsg.id }} </td>
+                    <td class="text-center" id="idc_name_id"> {{ idcmsg.idc_name }} </td>
+                    <td class="text-center" id="idc_addr_id"> {{ idcmsg.idc_addr }} </td>
+                    <td class="text-center" id="idc_user_name_id"> {{ idcmsg.idc_user_name }} </td>
+                    <td class="text-center" id="idc_user_phone_id"> {{ idcmsg.idc_user_phone}} </td>
+                    <td class="text-center" id="remark_id"> {{ idcmsg.remark }} </td>
+                    <td class="text-center">
+                        <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#update_idc" onclick="updateInfo()">
+                        <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="del({{ idcmsg.id }})">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        总共 {{ idc_msg|length }} 条记录
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <input id = "add_btn" type = "button" value = "添加机房" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#add_idc">  {# data-target="#add_idc" 指向add_idc这个模态框 #}
+    </div>
+</div>
 
 
-<!-- 更新模态框（Modal） -->
+
+
+<!-- 更新模态框（Modal）start -->
 <div class="modal fade" id="update_idc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -57,10 +73,10 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal -->
 </div>
-<!-- 模态框（Modal）end -->
+<!-- 更新模态框（Modal）end -->
 
 
-<!-- 添加模态框（Modal） -->
+<!-- 添加模态框（Modal）start -->
 <div class="modal fade" id="add_idc" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}
 	<div class="modal-dialog">
 		<div class="modal-content">
@@ -81,9 +97,7 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal -->
 </div>
-<!-- 模态框（Modal）end -->
-
-
+<!-- 添加模态框（Modal）end -->
 
 
 <script>

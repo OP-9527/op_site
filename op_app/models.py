@@ -100,6 +100,11 @@ class AppName(models.Model):
     remark = models.CharField(verbose_name=u'备注', max_length=100)
 
 
+class ConfigManage(models.Model):
+    host = models.CharField(max_length=100, verbose_name=u'IP')
+    file_path = models.CharField(max_length=200, verbose_name=u'文件路径')
+
+
 class Blog(models.Model):
     title = models.CharField(max_length=150, verbose_name=u'文章标题')
     author = models.CharField(max_length=50, verbose_name=u'作者')
@@ -115,4 +120,6 @@ class BlogDispaly(admin.ModelAdmin):
     list_display = ('title', 'author', 'pub_time', 'update_time')   # list_display 配置要显示的字段
 
 admin.site.register(Blog, BlogDispaly)
+
+
 

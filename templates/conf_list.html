@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="page-header">配置文件</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel">
+            主机：<input id="host" type="text"><label for="host" ></label>
+            路径：<input id="path" type="text"><label for="path" ></label>
+            <input type="button" value="添加" onclick="add()">
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <ul id="colist" class="list-group">
+            {% for i in msg %}
+            <li id="li_{{ i.id }}" class="list-group-item">
+                主机：{{ i.host }} 路径：{{ i.file_path }}
+                <input id="{{ i.id }}_edit" class="pull-right btn btn-xs btn-primary" type="button" value="编辑" onclick="edit('{{ i.host }}', '{{ i.file_path }}')">
+                <input id="{{ i.id }}_add" class="pull-right btn btn-xs btn-primary" style="margin-right: 10px" type="button" value="查看" onclick="show_content('{{ i.id }}', '{{ i.host }}', '{{ i.file_path }}')">
+            </li>
+            {% endfor %}
+        </ul>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div id="file_panel" class="panel panel-primary" hidden="hidden">
+            <div id="read" class="panel-heading">配置文件内容</div>
+            <div id="read_file" class="panel-body">
+                <div id="msg">
+
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div id="footer" hidden="hidden">
+                    <input type="button" value="提交" class="btn btn-xs btn-primary">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function show_content(id, host, path) {
+    $.ajax({
+        type:'GET',
+        url:'/conf_show/',
+        data: {
+            'host': host,
+            'path': path
+        },
+        success:function (data) {
+            var eLi = document.getElementsByTagName("li");
+            for(var i =0;i<=eLi.length;i++)
+            {
+                $('li').css('background', 'transparent');           {# 取消其他行高亮 #}
+            }
+
+
+            var oLi = document.getElementById("li_"+id);                {# 点击行高亮 #}
+            oLi.style.backgroundColor = "#337ab7";
+
+            $("#read").text("配置文件内容(只读)");
+            $("#file_panel").attr('hidden', false);
+            document.getElementById("msg").innerText = '';
+            document.getElementById("msg").innerText = data;
+        },
+        error:function (data) {
+            $("#read").text("读取配置文件内容错误");
+            $("#file_panel").attr('hidden', false);
+            $("#file_panel").removeClass("panel-primary");
+            $("#file_panel").addClass("panel-red");
+            document.getElementById("msg").innerText = '';
+            document.getElementById("msg").innerText = data;
+        }
+    })
+}
+
+function edit(host, path) {
+    $.ajax({
+        type:'GET',
+        url:'/conf_show/',
+        data: {
+            'host': host,
+            'path': path
+        },
+        success:function (data) {
+            $("#read").text("正在修改配置文件内容...");
+            $("#file_panel").attr('hidden', false);
+            $("#footer").attr('hidden', false);
+            var oDiv= document.getElementById("msg");
+            document.getElementById("read_file").removeChild(oDiv);
+            var oText=document.createElement("textarea");
+            document.getElementById("read_file").appendChild(oText);
+            oText.id = "Test00";
+
+
+            document.getElementById(oText.id).innerText = '';
+            document.getElementById(oText.id).innerText = data;
+        },
+        error:function (data) {
+            $("#file_panel").attr('hidden', false);
+            document.getElementById("msg").innerText = '';
+            document.getElementById("msg").innerText = data;
+        }
+    })
+}
+
+function add() {
+    var host_ = document.getElementById("host").value;
+    var path_ = document.getElementById("path").value;
+    $.ajax({
+        type:'GET',
+        url:'/conf_add/',
+        data: {
+            'host': host_,
+            'path': path_
+        },
+        success:function (data) {
+            location.reload();
+        }
+    })
+}
+
+</script>
+    
+    
+{% endblock %}

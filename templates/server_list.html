@@ -13,42 +13,56 @@ select {   {# 下拉框 #}
 }
 </style>
 
-<h5><strong>服务器信息列表</strong></h5>
-<table id="server_list_table_id" class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr>
-            <th class="text-center" width="10%"> IP </th>
-            <th class="text-center" width="5%"> 品牌 </th>
-            <th class="text-center" width="10%"> IDC </th>
-            <th class="text-center" width="10%"> 机架位置</th>
-            <th class="text-center" width="10%"> 服务器所属组 </th>
-            <th class="text-center" width="10%"> 上架时间 </th>
-            <th class="text-center" width="10%"> 服务器状态 </th>
-            <th class="text-center" width="15%"> 备注 </th>
-            <th class="text-center" width="11%"> 操作 </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for servermgs in server_msg %}
-        <tr>
-            <td class="text-center" id="server_ip_id"> {{ servermgs.ip }} </td>
-            <td class="text-center" id="server_manufacturer_id"> {{ servermgs.manufacturer }} </td>
-            <td class="text-center" id="server_idc_id"> {{ servermgs.idc }} </td>
-            <td class="text-center" id="server_server_position_id"> {{ servermgs.server_position }} </td>
-            <td class="text-center" id="server_group_id"> {{ servermgs.server_group }} </td>
-            <td class="text-center" id="server_add_time_id"> {{ servermgs.add_time }} </td>
-            <td class="text-center" id="server_status_id"> {{ servermgs.status }} </td>
-            <td class="text-center" id="remark_id"> {{ servermgs.remark}} </td>
-            <td class="text-center">
-                <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_update" onclick="updateInfo({{ servermgs.id }})">
-                <input id = "detail_btn" type = "button" value = "信息" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_detail" onclick="server_detail('{{ servermgs.ip }}')">
-                <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="server_Del()">
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<input id = "add_btn" type = "button" value = "添加服务器" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#server_add">
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="page-header">服务器信息列表</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <table id="server_list_table_id" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                <th class="text-center"> IP </th>
+                <th class="text-center"> 品牌 </th>
+                <th class="text-center"> IDC </th>
+                <th class="text-center"> 机架位置</th>
+                <th class="text-center"> 服务器所属组 </th>
+                <th class="text-center"> 上架时间 </th>
+                <th class="text-center"> 服务器状态 </th>
+                <th class="text-center"> 备注 </th>
+                <th class="text-center"> 操作 </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for servermgs in server_msg %}
+                <tr>
+                    <td class="text-center" id="server_ip_id"> {{ servermgs.ip }} </td>
+                    <td class="text-center" id="server_manufacturer_id"> {{ servermgs.manufacturer }} </td>
+                    <td class="text-center" id="server_idc_id"> {{ servermgs.idc }} </td>
+                    <td class="text-center" id="server_server_position_id"> {{ servermgs.server_position }} </td>
+                    <td class="text-center" id="server_group_id"> {{ servermgs.server_group }} </td>
+                    <td class="text-center" id="server_add_time_id"> {{ servermgs.add_time }} </td>
+                    <td class="text-center" id="server_status_id"> {{ servermgs.status }} </td>
+                    <td class="text-center" id="remark_id"> {{ servermgs.remark}} </td>
+                    <td class="text-center">
+                        <input id = "update_btn" type = "button" value = "编辑" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_update" onclick="updateInfo({{ servermgs.id }})">
+                        <input id = "detail_btn" type = "button" value = "信息" class="btn btn-xs btn-primary" data-toggle="modal" data-target="#server_detail" onclick="server_detail('{{ servermgs.ip }}')">
+                        <input id = "delete_btn" type = "button" value = "删除" class="btn btn-xs btn-danger" onclick="server_Del()">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <input id = "add_btn" type = "button" value = "添加服务器" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#server_add">
+    </div>
+</div>
 
 
 

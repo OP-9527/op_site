@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='blog',
+            model_name='Blog',
             name='author',
             field=models.CharField(default='root', max_length=50, verbose_name='\u4f5c\u8005'),
             preserve_default=False,

@@ -1,30 +1,45 @@
 {% extends 'base.html' %}
 {% block content%}
-<h5><strong>服务器抓包信息列表</strong></h5>
-<table id="tcpdump_list_table_id" class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr>
-            <th class="text-center"> IP </th>
-            <th class="text-center"> Tcpdump命令 </th>
-            <th class="text-center"> 操作 </th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for msg_ in msg %}
-        <tr>
-            <td class="text-center" id="ip"> {{ msg_.ip }} </td>
-            <td class="text-center" id="cmd"> {{ msg_.cmd }} </td>
-            <td class="text-center">
-                <input id="start_{{ msg_.id }}" type = "button" value = "开始抓包" class="btn btn-xs btn-primary" onclick="start_tcpdump({{ msg_.id }})" >
-                <input id="stop_{{ msg_.id }}" type = "button" value = "停止抓包" class="btn btn-xs btn-warning" disabled="disabled" onclick="stop_tcpdump('{{ msg_.ip }}','{{ msg_.id }}')" >
-                <input id="update_{{ msg_.id }}" type="button" value="编辑" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#tcpdump_update" onclick="updateInfo({{ msg_.id }})"/>
-                <input id="del_{{ msg_.id }}" type="button" value="删除" class="btn btn-danger btn-xs" onclick="del('{{ msg_.id }}')" />
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<input id = "add_btn" type = "button" value = "添加抓包信息" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#tcpdump_add">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h3 class="page-header">Tcpdump抓包</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="tcpdump_list_table_id" class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th class="text-center"> IP </th>
+                    <th class="text-center"> Tcpdump命令 </th>
+                    <th class="text-center"> 操作 </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for msg_ in msg %}
+                <tr>
+                    <td class="text-center" id="ip"> {{ msg_.ip }} </td>
+                    <td class="text-center" id="cmd"> {{ msg_.cmd }} </td>
+                    <td class="text-center">
+                        <input id="start_{{ msg_.id }}" type = "button" value = "开始抓包" class="btn btn-xs btn-primary" onclick="start_tcpdump({{ msg_.id }})" >
+                        <input id="stop_{{ msg_.id }}" type = "button" value = "停止抓包" class="btn btn-xs btn-warning" disabled="disabled" onclick="stop_tcpdump('{{ msg_.ip }}','{{ msg_.id }}')" >
+                        <input id="update_{{ msg_.id }}" type="button" value="编辑" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#tcpdump_update" onclick="updateInfo({{ msg_.id }})"/>
+                        <input id="del_{{ msg_.id }}" type="button" value="删除" class="btn btn-danger btn-xs" onclick="del('{{ msg_.id }}')" />
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <input id = "add_btn" type = "button" value = "添加抓包信息" class="btn btn-xs btn-primary pull-right" data-toggle="modal" data-target="#tcpdump_add">
+    </div>
+</div>
+
 
 <!-- 添加模态框（Modal） -->
 <div class="modal fade" id="tcpdump_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">  {# class="modal fade,modal用来把<div>的内容识别为模态框",fade,当模态框被切换时，它会引起内容淡入淡出,backdrop,指定一个静态的背景，当用户点击模态框外部时不会关闭模态框。 #}

@@ -11,7 +11,7 @@ Class-based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
 Including another URLconf
-    1. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+    1. Add a URL to urlpatterns:  url(r'^sb-admin/', include('sb-admin.urls'))
 """
 from django.conf.urls import include, url
 from django.contrib import admin
@@ -66,6 +66,19 @@ urlpatterns = [
 
     url(r'^exec_command/$', exec_command, name='exec_command'),
 
-    url(r'^blog/$', 'op_app.blog.index', name='blog'),
+    url(r'^sb-admin/$', 'op_app.blog.index', name='sb-admin'),
+
+
+    url(r'^conf_list/$', conf_list, name='conf_list'),
+    url(r'^conf_show/$', conf_show, name='conf_show'),
+    url(r'^conf_add/$', conf_add, name='conf_add'),
+
+
+    url(r'^log_show/$', log_show, name='log_show'),
+    url(r'^log_get/$', log_get, name='log_get'),
+
+
+
+
 ]
 

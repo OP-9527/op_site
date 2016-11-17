@@ -57,7 +57,7 @@ var pageInitModule = (function (mod) {
                     $(this).parents(".has-sub").addClass("active");
                 }
             }
-        })   //选择菜单时，添加active
+        });   //选择菜单时，添加active
     };
     return mod;
 })(window.pageInitModule || {});
