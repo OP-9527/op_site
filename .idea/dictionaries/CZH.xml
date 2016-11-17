@@ -14,6 +14,7 @@
       <w>bdimg</w>
       <w>caizehong</w>
       <w>clickjacking</w>
+      <w>clientdata</w>
       <w>cmdb</w>
       <w>colist</w>
       <w>consectetur</w>
@@ -66,6 +67,7 @@
       <w>scrolltopcontrol</w>
       <w>serverinfo</w>
       <w>servermgs</w>
+      <w>setblocking</w>
       <w>signin</w>
       <w>socketclient</w>
       <w>sshpass</w>
@@ -74,8 +76,10 @@
       <w>stdin</w>
       <w>strcurrenturl</w>
       <w>struct</w>
+      <w>tcpsock</w>
       <w>tengine</w>
       <w>textarea</w>
+      <w>textlength</w>
       <w>timeline</w>
       <w>tunlp</w>
       <w>uniq</w>
