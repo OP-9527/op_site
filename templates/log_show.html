@@ -7,30 +7,28 @@
     </div>
 </div>
 <style>
-    html, body {
-        font: normal 0.9em arial, helvetica;
+    pre {
+        margin: 0 0 0;
+        padding: 0;
+        border: hidden;
+        background-color: #0c0c0c;
+        color: #00ff00;
     }
-    #log {
-        width: 440px;
-        height: 200px;
-        border: 1px solid #7F9DB9;
-        overflow: auto;
-        font-family:SimSun;
-    }
-    #msg {
-        width: 330px;
+    code {
+        font-family: "宋体",serif;
     }
 </style>
 
 <div class="row">
     <div class="col-lg-12">
-        <div id="log" style="width: 100%;height:400px;color: #00ff00;overflow:scroll;overflow-x: auto;"  ></div>
+        <div id="log" style="width: 100%;height:400px;background-color: #0c0c0c;overflow: scroll;overflow-x: auto"></div>
         <br>
     </div>
 </div>
 
 <div class="row">
     <div class="col-lg-12">
+        <input type="text" class="inBtn">
         <input type="button" class="btn btn-primary btn-sm" value="start" id="start" onclick="start()">
         <input disabled="disabled" type="button" class="btn btn-primary btn-sm" value="stop" id="stop" onclick="stop()" >
     </div>
@@ -50,7 +48,7 @@
 
                 var obje = document.getElementById("log");   //日志过多时清屏
                 var textlength = obje.scrollHeight;
-                if (textlength > 30000) {
+                if (textlength > 10000) {
                     obje.innerHTML = '';
                 }
             };
@@ -67,7 +65,6 @@
         catch (ex) {
             log(ex);
         }
-        $("msg").focus();
     }
 
     function stop() {
@@ -80,35 +77,6 @@
             $("#stop").attr('disabled', true);
         }
         catch (ex) {
-            log(ex);
-        }
-    }
-
-    function send() {     // 发送给服务器
-        var txt, msg, ws_state;
-        txt = $("#msg");    //$(id) 下面的函数
-        msg = txt.val();
-
-        try {
-            ws_state = socket.readyState;
-            log(msg);
-            if (ws_state == 1){
-                if (!msg) {
-                    alert("Message can not be empty");
-                    return;
-                }
-                txt.val("");
-                txt.focus();
-                try {
-                    socket.send(msg);
-                } catch (ex) {
-                    log(ex);
-                }
-            }
-            else{
-                alert("Connection is not active!");
-            }
-        } catch (ex) {
             log(ex);
         }
     }
@@ -129,14 +97,8 @@
     }
     function log(msg) {
         var obje = document.getElementById("log");
-{#        console.log(msg);#}
         obje.innerHTML += '<pre><code>' + msg + '</code></pre>';
         obje.scrollTop = obje.scrollHeight;   //滚动条显示最新数据
-    }
-    function onkey(event) {
-        if (event.keyCode == 13) {     //如果是按回车键就发送
-            send();
-        }
     }
 </script>
 

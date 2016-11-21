@@ -12,5 +12,3 @@ def get_ssh(ip, user, pwd):
     except Exception, e:
         print e
         return "False"
-
-

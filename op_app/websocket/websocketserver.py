@@ -4,9 +4,7 @@ import base64
 import hashlib
 import socket
 import threading
-import time
 from op_app.public import get_ssh
-from paramiko import SSHClient, AutoAddPolicy
 
 
 def recv_data(conn):    # 服务器解析浏览器发送的信息
@@ -88,73 +86,42 @@ def handshake(conn, address, thread_name):
     return True
 
 
-def get_log():
-    ssh = SSHClient()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-    ssh.connect('10.1.11.35', username='root', password='6zFUF1enQ25RVux3TXQ=')
-    ssh_transp = ssh.get_transport()
-    chan = ssh_transp.open_session()
-    chan.setblocking(0)
-
-    chan.exec_command('tail -f /var/log/messages')
-
-    # outdata, errdata = '', ''
-    # while True:
-    #     while chan.recv_ready():
-    #         print 'test1'
-    #         outdata += chan.recv(1000)
-    #     while chan.recv_stderr_ready():
-    #         errdata += chan.recv_stderr(1000)
-    #     if chan.exit_status_ready():  # If completed
-    #         break
-    #
-    # retcode = chan.recv_exit_status()
-    # ssh_transp.close()
-    # return outdata, errdata
-
-
 def dojob(conn, address, thread_name):
     conn.setblocking(0)                       # 设置socket为非阻塞
     handshake(conn, address, thread_name)     # 握手
 
-    ssh = SSHClient()
-    ssh.set_missing_host_key_policy(AutoAddPolicy())
-    ssh.connect('10.1.11.35', username='root', password='6zFUF1enQ25RVux3TXQ=')
-    ssh_transp = ssh.get_transport()
-    chan = ssh_transp.open_session()
-    chan.setblocking(0)
-    # chan.exec_command('tail -f /var/log/messages')
+    ssh = get_ssh('10.1.11.35', 'root', '6zFUF1enQ25RVux3TXQ=')
+    ssh_t = ssh.get_transport()
+    chan = ssh_t.open_session()
+    chan.setblocking(0)   # 设置非阻塞
     chan.exec_command('tail -f /data/logs/bd_api/api')
 
     while True:
         clientdata = recv_data(conn)
-        if clientdata is not None:
-            if 'quit' in clientdata:
-                send_data(conn, 'close connect')
-                print ('%s : Socket close with %s:%s' % (thread_name, address[0], address[1]))
-                conn.close()
-                break
+        if clientdata is not None and 'quit' in clientdata:
+            print ('%s : Socket close with %s:%s' % (thread_name, address[0], address[1]))
+            send_data(conn, 'close connect')
+            conn.close()
+            break
         while True:
             while chan.recv_ready():
-                clientdata = recv_data(conn)
-                if clientdata is not None:
-                    if 'quit' in clientdata:
-                        send_data(conn, 'close connect')
-                        print ('%s : Socket close with %s:%s' % (thread_name, address[0], address[1]))
-                        conn.close()
-                        break
-                log_msg = chan.recv(1000).strip()
-                send_data(conn, log_msg)
-                print log_msg
-            if chan.exit_status_ready():  # If completed
-                break
-            clientdata = recv_data(conn)
-            if clientdata is not None:
-                if 'quit' in clientdata:
-                    send_data(conn, 'close connect')
+                clientdata1 = recv_data(conn)
+                if clientdata1 is not None and 'quit' in clientdata1:
                     print ('%s : Socket close with %s:%s' % (thread_name, address[0], address[1]))
+                    send_data(conn, 'close connect')
                     conn.close()
                     break
+                log_msg = chan.recv(10000).strip()
+                print log_msg
+                send_data(conn, log_msg)
+            if chan.exit_status_ready():  # If completed
+                break
+            clientdata2 = recv_data(conn)
+            if clientdata2 is not None and 'quit' in clientdata2:
+                print ('%s : Socket close with %s:%s' % (thread_name, address[0], address[1]))
+                send_data(conn, 'close connect')
+                conn.close()
+                break
         break
 
 
